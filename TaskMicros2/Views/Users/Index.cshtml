@@ -1,0 +1,99 @@
+﻿@model IEnumerable<TaskMicros2.Models.Users>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<p>
+    <a asp-action="Create">Добавит </a>
+</p>
+
+<div id="gridKendo"></div>
+<br />
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#kendoVersion").text(kendo.version);
+
+
+        $("#gridKendo").kendoGrid(
+            {
+                dataSource: Users.gridDataSource(),
+                columns: Users.GenerateColumns(),
+                resizable: true,
+                filterable: true,
+                sortable: true,
+                editable: "inline",
+                selectable: "row",
+            }
+        );
+    });
+
+    var Users = {
+
+        GenerateColumns: function () {
+            return columns =
+                [
+
+                    { field: "Id", title: "Id", width: 90, editable: false },
+                    { field: "UserName", title: "Пользователи", width: 160, editable: false },
+                    {
+                        command: [{
+                            name: "edit",
+                            text: {
+                                edit: "Edit",
+                                update: "Update",
+                                cancel: "Cancel"
+                            }
+                        }],
+                        width: 160
+                    }
+
+                ]
+        },
+
+        gridDataSource: function () {
+            var gridDataSource = new kendo.data.DataSource(
+                {
+                    batch: true,
+                    sort: ({ field: "Id", dir: "asc" }),
+                    schema: {
+                        data: "Items", total: "TotalCount",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Id: { type: "int", editable: false },
+                                UserName: { type: "string" },
+
+                            }
+                        }
+                    },
+                    transport: {
+                        read: {
+                            url: '../Users/GetAllUsersJson',
+                            type: "GET",
+                            dataType: "json",
+                            contentType: "application/json; charser=utf-8"
+                        },
+
+                        update: {
+                            url: '../Users/UpdateUsers', 
+                            type: "POST",
+                        },
+                        parameterMap: function (options, operation) {
+                            if (operation !== "read" && options.models) {
+                                return { models: kendo.stringify(options.models) };
+                            }
+                        }
+                    },
+                });
+            return gridDataSource;
+        },
+    }
+
+</script>
+

@@ -1,0 +1,115 @@
+﻿@model IEnumerable<TaskMicros2.Models.Datas>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<p>
+    <a asp-action="Create">Добавит </a>
+</p>
+
+<div id="gridKendo" ></div>
+<br />
+
+@*Used to display kendo UI grid*@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#kendoVersion").text(kendo.version);
+
+
+        $("#gridKendo").kendoGrid(
+            {
+                dataSource: DataHelper.gridDataSource(),
+                columns: DataHelper.GenerateColumns(),
+                resizable: true,
+                filterable: true,
+                sortable: true,
+                editable: "inline",
+                selectable: "row",
+            }
+        );
+    });
+
+    var DataHelper = {
+
+        GenerateColumns: function () {
+            return columns =
+                [
+
+                    { field: "Id", title: "Id", width: 90, editable: false, hidden: false },
+                    { field: "StartDate", title: "Дата началы", width: 160, editable: false, format: "{0:d}" },
+                    { field: "LastDate", title: "Дата конца", width: 150, editable: false, format: "{0:d}" },
+                    { field: "Commentary", title: "Комментарий", width: 160, editable: false },
+                    { field: "Amount", title: "Сумма", width: 160, editable: false },
+                    { field: "Type", title: "Тип платежа", width: 160, editable: false },
+                    { field: "Category", title: "Категория", width: 160, editable: false },
+                    { field: "User", title: "Пользователь", width: 160, editable: false },
+                    { field: "TypeId", title: "TypeId", width: 160, editable: false , hidden: true},
+                    { field: "CategoryId", title: "CategoryId", width: 160, editable: false, hidden: true },
+                    { field: "UserId", title: "UserId", width: 160, editable: false, hidden: true },
+                    
+                    {
+                        command: [{
+                            name: "edit",
+                            text: {
+                                edit: "Edit",
+                                update: "Update",
+                                cancel: "Cancel"
+                            }
+                        }],
+                        width: 160
+                    }
+                ]
+        },
+
+        gridDataSource: function () {
+            var gridDataSource = new kendo.data.DataSource(
+                {
+                    batch: true,
+                    sort: ({ field: "Id", dir: "asc" }),
+                    schema: {
+                        data: "Items", total: "TotalCount",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Id: { type: "int", editable: false },
+                                StartDate: { type: "date" },
+                                LastDate: { type: "date" },
+                                Commentary: { type: "string" },
+                                Amount: { type: "number" },
+                                Type: { type: "string", editable: false },
+                                Category: { type: "string", editable: false },
+                                User: { type: "string" , editable: false},
+                                TypeId: { type: "number", editable: false },
+                                CategoryId: { type: "number", editable: false },
+                                UserId: { type: "number", editable: false }
+
+                            }
+                        }
+                    },
+                    transport: {
+                        read: {
+                            url: '../Datas/GetAllDataJson',
+                            type: "GET",
+                            dataType: "json",
+                            contentType: "application/json; charser=utf-8"
+                        },
+                        update: {
+                            url: '../Datas/UpdateData', //  goes to controller ->  action
+                            type: "POST",
+                        },
+                        parameterMap: function (options, operation) {
+                            if (operation !== "read" && options.models) {
+                                return { models: kendo.stringify(options.models) };
+                            }
+                        }
+                    },
+                });
+            return gridDataSource;
+        },
+    }
+
+</script>
